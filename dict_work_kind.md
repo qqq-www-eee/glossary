@@ -9,6 +9,7 @@
 
 <img width="727" alt="image" src="https://user-images.githubusercontent.com/122552428/212556648-078c9611-9280-40ef-baaf-ca7692968db7.png">
 _Иллюстрация - структура "Список работ на объекте"_
+
 <br>
 
 **Создание списка доступных работ**
