@@ -6,18 +6,104 @@
 
 ## Введение
 
-> Нужно добавить пользователям поле "Комментарий" (user_comment).
->
-> Тогда перечень полей для Пользователя будет содержать:
->
-> - _(uuid)_
-> - "Телефон",
-> - "ФИО" (в будущем возможна деление на Фамилию, Имя, Отчество, когда будет начата интеграция с 1С, пока оставим просто одно поле),
-> - "Должность" (реализовать в виде справочника с возможностью добавления),
-> - "Комментарий" (user_comment) - пользовательский комментарий ("всегда пропадают мешалки", "прикапывается к углам" и пр., длина поля - 1024)
->
-> В редкатировании списка "Исполнители" должно быть четко написано, что вот мол эти люди увидят шахматку, как только зарегистрируются в системе. 
-> Замечаниям надо добавить автора.
+> - Необходимо переделать логинку поля "Должность" (справочник) и отвязать "Должность" от харадкодженых доступов.  
+> - При редкатировании списка "Исполнители" должно быть четко написано, что вот мол эти люди увидят шахматку, как только зарегистрируются в системе. 
+> - К замечаниям надо добавить автора!
+
+Предложения по изменению в БД:
+
+### Таблица user
+
+| Как сейчас:          | Как предлагается сделать: | Комментарий |
+| -------------------- | ------------------------- |-|
+| id                   | id                        | |
+| first_name           | full_name                 | not null|
+| middle_name          |                           | |
+| last_name            |                           | |
+| email                | email                     | |
+| phone                | phone                     | |
+| pic                  | pic                       | |
+| status               |                           | |
+| created              | created                   | |
+| updated              | updated                   | |
+| last_login           | last_login                | |
+| login                | (login)                   | |
+| pwd                  | (pwd)                     | |
+| salt                 | (salt)                    | |
+| password_set_by_user | (password_set_by_user)    | |
+| gender               |                           | |
+| comment              | comment                   | Комментарий в свободной форме: "всегда пропадают мешалки", "прикапывается к углам" и пр., varсhar(255) |
+| telegram_id          | telegram_id               | |
+| last_project_id      | last_project_id           | |
+|                      | job_title                 | Должность: справочник с возможностью добавления/удаления пользовательских должностей |
+
+### Таблица project_role
+
+| Как сейчас: | Как предлагается сделать: | Комментарий |
+| ----------- | ------------------------- | ----------- |
+| id          | id                        |             |
+| status      | status                    |             |
+| project_id  | project_id                |             |
+| role_id     | role_id                   |             |
+| user_id     | user_id                   |             |
+| comment     | comment                   |             |
+| created     | created                   |             |
+| updated     | updated                   |             |
+
+тут ничего не меняем
+
+### Таблица role
+
+> В идеале "Технический надзор" надо переименовать в "Инженер строительного контроля", потому что технадзор - термин, перекочевавший из СССР.
+> 
+> В таблице Прораб и произовдитель работ - задублированная информация. 
+
+### Как отображается Таблица role в UI (и какие id выбраны):
+
+| Должность в UI     | role.id в БД                   |
+| ------------------ | ------------------------------ |
+| Начальник участка  |                                |
+| Прораб             |                                |
+| Технический надзор | Инженер строительного контроля |
+| Мастер участка     |                                |
+| Бригадир           |                                |
+| Рабочий            |                                |
+| Сметчик            |                                |
+| Инженер ПТО        |                                |
+| Читатель           |                                |
+| Редактор           |                                |
+
+### Таблица permission
+
+ЕЕ НАДО КАТЕГОРИЧЕСКИ СОКРАЩАТЬ! Если нигде не используется она, по фату так-то.
+
+КАРТИНКА
+
+Вместо uuid возможно использовать _serial4.
+
+Как предлагается реализовать наполнение справочника:
+
+| code              | comment |
+| ----------------- | ------- |
+| Начальник участка |         |
+| Прораб            |         |
+|                   |         |
+|                   |         |
+|                   |         |
+|                   |         |
+|                   |         |
+
+
+
+
+
+
+
+Аргументы:
+1. 3 поля под Фамилию, Имя и Отчетство вводить не нужны, достаточно фамилии почти всегда. Сейчас в 1С все равно вся верификация и выплаты будут в любом случае идти через человека (бухгалтера). В перспективе, когда нам потребуется интеграция с 1С будем просто из него получать и в него отдавать идентификаторы идентификаторы справочников из 1С (проект, работа, исполнитель). три поля не нужны.
+2. логин-пароли не нужны, только телефон-смс?
+3. Необходимо отвязать должность пользователя от его доступов.
+
 
 ### Проблема 1
 
@@ -180,85 +266,4 @@
 Я могу хотеть дать возможность исполнителю вносить правки в работы на шахматке, но не вносить в замечания
 Я могу хотеть дать возможность технадзорв вносить правки в замечния на шахматке, но не вносить в работы
 Корректировать замечания может только их создатель или создатель шахматки.
-Права на редактирование справочников должно быть отдельной вещью. Особенно работ.
-
-1. Create-browse-edit-delete their own chessboards and all the dictinaries and settings (originated from theselves!)  
-2. Users can never create-browse-edit-delete the others' chessboards, dictionaries and settings.  
-3. Sometimes, when an access is granted, users can browse others' chessboards. But not setting, or dictionary, or others' access.  
-4. Sometimes, when an access is granted, users can edit the others' chessboards. But not setting, or dictionary, or others' access.  
-5. ASDF
-6. Edit their own chessboards! And never others' chessboards.
-7. Assign jobs/orders to others / to themselves
-8. Assign tech.check to others / to themselves
-9. Give right to view data
-10. Give right to edit data
-11. Browse the site-manager-view
-
-# Users and Roles
-
-There are different roles in the system:
-
-1. A foreman / construction site manager
-2. A technical supervisioner
-3. A workman  
-
-All of them are able to:
-
-1. Create-browse-edit-delete their own chessboards and all the dictinaries and settings (originated from theselves!)  
-2. Users can never create-browse-edit-delete the others' chessboards, dictionaries and settings.  
-3. Sometimes, when an access is granted, users can browse others' chessboards. But not setting, or dictionary, or others' access.  
-4. Sometimes, when an access is granted, users can edit the others' chessboards. But not setting, or dictionary, or others' access.  
-5. ASDF
-6. Edit their own chessboards! And never others' chessboards.
-7. Assign jobs/orders to others / to themselves
-8. Assign tech.check to others / to themselves
-9. Give right to view data
-10. Give right to edit data
-11. Browse the site-manager-view
-
-LEFT assigns a job to UPPER
-
-| ...     | foreman | tech | workman |
-|---------|---------|------|---------|
-| foreman |    +    |      |    +    |
-| tech    |         |      |    +    |
-| workman |         |      |    +    |
-
-If two workmen are given the rights to edit chessboard, and one of them deleted some stuff, for example, the list of works, what will user do?
-
-Restoration of cheesboard!  
-Logs of versions!
-
-And still, we shall not give an opportunity to anyone to alter dictionaries, such as Workman list, TechSV list, and still - how can two foremen become friends of get access to one another's chessboards?
-
-- via links
-- via access
-
-What can and can not a foreman (ordinary user) do:
-
-| Feature | Foreman |
-|----|-|
-| | |
-
-HAVE:
-
-- Creating accounts for Workmen and Techmen - without any SMS confirmations.
-- Account has fields: Name, Surname, Middlename, Phone number, email
-- We do not want the user to scrupulously write down all his wormen's full names. But for users they are obligatory.
-- What about state-models - for invitations and for accounts.
-
-ALTERNATIVES:
-
-- Creating not accounts but rather a handbook?
-- ~~Asking everyone for confirmation~~
-
-PROBLEMS:
-
-- A user is able to insert incorrect telephone number
-- A user is NOT able to correct neither phone number nor name
-- What is "a position"?
-- user fulfills only 1 field, and system decided what it is on its own.
-- Whenever someone is registered in system (on his own or via invitation link = access granted) his name in almost any case will be changed - through the entire system.
-- previous user can loose in their contacts! User is confused
-- The system cannot work with semantics of the given string and will always think that it is, for example, just Middle name. incorrect parsing and lost of semantics
-- We can loose the real data, if firstly name was entered correctly and after that substituted with dummy data. Data loss
+Права на редактирование справочников должно быть отдельной вещью. Особенно работ
