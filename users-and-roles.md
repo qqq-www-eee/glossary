@@ -91,7 +91,7 @@
 
 ТАБЛИЦУ НАДО КАТЕГОРИЧЕСКИ СОКРАЩАТЬ, если нигде не используется 
 
-<img width="727" alt="image" src="/mermaid-diagram-2023-01-20-104232.png">
+<img width="400" alt="image" src="/mermaid-diagram-2023-01-20-104232.png">
 
 КАРТИНКА
 
