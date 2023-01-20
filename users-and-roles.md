@@ -91,6 +91,8 @@
 
 ТАБЛИЦУ НАДО КАТЕГОРИЧЕСКИ СОКРАЩАТЬ, если нигде не используется 
 
+<img width="727" alt="image" src="https://user-images.githubusercontent.com/122552428/mermaid-diagram-2023-01-20-104232.png">
+
 КАРТИНКА
 
 Вместо uuid возможно использование _serial4?
