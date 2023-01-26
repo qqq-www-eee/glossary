@@ -38,8 +38,7 @@
 5. Комментарий к наряду - вместо изменяемого имени.
 
 Как сейчас:
-<img width="500" alt="old list of orders" src="https://user-images.githubusercontent.com/122552428/photo_2023-01-26_18-05-36.jpg">
-
+<img width="500" alt="old list of orders" src="/photo_2023-01-26_18-05-36.jpg">
 
 
 Как надо: 
