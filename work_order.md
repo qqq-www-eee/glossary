@@ -404,7 +404,7 @@ where
 update subtask
 set is_paid = true
 where 
-  (select с выбором всех тасок, которые относятся к payment_report, получившему статус "Оплачен", через payment_report_task)
+  (select "с выбором всех тасок, которые относятся к payment_report, получившему статус 'Оплачен', через payment_report_task")
 returning *;
 ```
 
